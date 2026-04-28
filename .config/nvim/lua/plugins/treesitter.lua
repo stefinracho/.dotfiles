@@ -1,14 +1,32 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	branch = "master",
 	lazy = false,
+	branch = "main",
 	build = ":TSUpdate",
 	config = function()
-		require("nvim-treesitter.configs").setup({
-			auto_install = true,
-			highlight = {
-				enable = true,
-			},
+		require("nvim-treesitter").install({
+			"bash",
+			"c",
+			"cpp",
+			"css",
+			"hcl",
+			"html",
+			"java",
+			"javascript",
+			"jinja",
+			"jinja_inline",
+			"json",
+			"lua",
+			"markdown",
+			"markdown_inline",
+			"python",
+			"sql",
+			"terraform",
+			"tsx",
+			"typescript",
+			"vim",
+			"vimdoc",
+			"yaml",
 		})
 	end,
 }

@@ -18,8 +18,8 @@ Hyprland
 
 4. Install [uwsm](https://aur.archlinux.org/packages/uwsm) and other useful AUR packages
 ```sh
-paru -S anki hypridle-git hyprlock-git hyprpaper-git hyprpolkitagent-git pwvucontrol uwsm \
-xdg-desktop-portal-gtk-git xdg-desktop-portal-hyprland-git
+paru -S anki hypridle-git hyprlock-git hyprpaper-git hyprpolkitagent-git jellyfin-desktop-git \
+pwvucontrol uwsm xdg-desktop-portal-gtk-git xdg-desktop-portal-hyprland-git
 ```
 
 5. Install everything else
@@ -30,7 +30,7 @@ fd ghostty gimp grim hplip hunspell hunspell-en_us jq ksnip libreoffice-fresh lu
 neovim networkmanager network-manager-applet nextcloud-client noto-fonts noto-fonts-cjk \
 noto-fonts-emoji npm nwg-look pandoc-cli pipewire pipewire-pulse python-weasyprint \
 qalculate-qt qbittorrent qt5ct qt5-wayland qt6ct qt6-wayland ripgrep rsync slurp stow \
-system-config-printer tmux ttf-noto-nerd waybar wireplumber wl-clipboard wofi
+system-config-printer tmux tree-sitter-cli ttf-noto-nerd waybar wireplumber wl-clipboard wofi
 ```
 
 6. Enable user services
