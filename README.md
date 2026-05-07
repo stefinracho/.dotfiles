@@ -1,60 +1,56 @@
 # .dotfiles
 
-1. Install [paru](https://github.com/Morganamilo/paru) and [Kitty](https://archlinux.org/packages/extra/x86_64/kitty/)
+1. Install a browser, [Hyprland](https://wiki.hyprland.org/Getting-Started/Installation/), [Kitty](https://archlinux.org/packages/extra/x86_64/kitty/), and [paru](https://github.com/Morganamilo/paru)
 ```sh
-sudo pacman -S --needed git base-devel kitty && git clone \
+sudo pacman -S --needed base-devel firefox git hyprland kitty && cd && git clone \
 https://aur.archlinux.org/paru.git && cd paru && makepkg -si
 ```
 
-2. Install [Hyprland](https://wiki.hyprland.org/Getting-Started/Installation/) and a browser
+2. Start Hyprland (from the tty)
 ```sh
-paru -S firefox hyprland-git
+start-hyprland
 ```
 
-3. Start Hyprland (from the tty)
+3. Install AUR packages
 ```sh
-Hyprland
+paru -S --needed jellyfin-desktop-git pwvucontrol python-grip-git
 ```
 
-4. Install [uwsm](https://aur.archlinux.org/packages/uwsm) and other useful AUR packages
+4. Install everything else
 ```sh
-paru -S anki hypridle-git hyprlock-git hyprpaper-git hyprpolkitagent-git jellyfin-desktop-git \
-pwvucontrol uwsm xdg-desktop-portal-gtk-git xdg-desktop-portal-hyprland-git
-```
-
-5. Install everything else
-```sh
-sudo pacman -S --needed adobe-source-sans-fonts adobe-source-serif-fonts blueman \
+sudo pacman -S --needed adobe-source-sans-fonts adobe-source-serif-fonts anki blueman \
 bluez-utils brightnessctl cups discord docker docker-buildx docker-compose dunst fastfetch \
-fd ghostty gimp grim hplip hunspell hunspell-en_us jq ksnip libreoffice-fresh luarocks mpv \
-neovim networkmanager network-manager-applet nextcloud-client noto-fonts noto-fonts-cjk \
-noto-fonts-emoji npm nwg-look pandoc-cli pipewire pipewire-pulse python-weasyprint \
-qalculate-qt qbittorrent qt5ct qt5-wayland qt6ct qt6-wayland ripgrep rsync slurp stow \
-system-config-printer tmux tree-sitter-cli ttf-noto-nerd waybar wireplumber wl-clipboard wofi
+fd ghostty gimp grim hplip hunspell hunspell-en_us hypridle hyprlock hyprpaper \
+hyprpolkitagent jq ksnip libreoffice-fresh luarocks mpv neovim networkmanager \
+network-manager-applet nextcloud-client noto-fonts noto-fonts-cjk noto-fonts-emoji \
+npm nwg-look pandoc-cli pipewire pipewire-pulse python-weasyprint qalculate-qt \
+qbittorrent qt5ct qt5-wayland qt6ct qt6-wayland ripgrep rsync slurp stow \
+system-config-printer tmux tree-sitter-cli ttf-noto-nerd uwsm waybar wireplumber \
+wl-clipboard wofi xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
 ```
 
-6. Enable user services
+5. Enable user services
 ```sh
 systemctl --user enable --now hypridle.service hyprpaper.service hyprpolkitagent.service \
 waybar.service
 ```
 
-7. Enable system services
+6. Enable system services
 ```sh
 systemctl enable --now bluetooth.service cups.service docker.socket NetworkManager.service
 ```
 
-8. Stow everything
+7. Stow everything
 ```sh
 cd ~/.dotfiles/ && stow --adopt .
 ```
 
-9. Restore `.dotfiles/` directory
+8. Restore `.dotfiles/` directory
 ```sh
 cd ~/.dotfiles/ && git restore .
 ```
 
-10. Reboot
+9. Reboot
 ```sh
 reboot
 ```
