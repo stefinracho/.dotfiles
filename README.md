@@ -18,15 +18,15 @@ paru -S --needed electronmail-bin jellyfin-desktop-git pwvucontrol python-grip-g
 
 4. Install everything else
 ```sh
-sudo pacman -S --needed adobe-source-sans-fonts adobe-source-serif-fonts anki blueman \
-bluez-utils brightnessctl cups discord docker docker-buildx docker-compose dunst fastfetch \
-fd ghostty gimp gnome-keyring grim hplip hunspell hunspell-en_us hypridle hyprlock \
-hyprpaper hyprpolkitagent jq ksnip libreoffice-fresh luarocks mpv neovim networkmanager \
-network-manager-applet nextcloud-client noto-fonts noto-fonts-cjk noto-fonts-emoji npm \
-nwg-look pandoc-cli pipewire pipewire-pulse python-weasyprint qalculate-qt qbittorrent \
-qt5ct qt5-wayland qt6ct qt6-wayland ripgrep rsync slurp stow system-config-printer tmux \
-tree-sitter-cli ttf-noto-nerd uwsm waybar wireplumber wl-clipboard wofi \
-xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
+sudo pacman -S --needed adobe-source-sans-fonts adobe-source-serif-fonts anki aws-cli-v2 \
+blueman bluez-utils brightnessctl cups discord docker docker-buildx docker-compose dunst \
+fastfetch fd ghostty gimp gnome-keyring grim hplip hunspell hunspell-en_us hypridle \
+hyprlock hyprpaper hyprpolkitagent jq ksnip libreoffice-fresh luarocks mpv neovim \
+networkmanager network-manager-applet nextcloud-client noto-fonts noto-fonts-cjk \
+noto-fonts-emoji npm nwg-look pandoc-cli pipewire pipewire-pulse python-weasyprint \
+qalculate-qt qbittorrent qt5ct qt5-wayland qt6ct qt6-wayland ripgrep rsync slurp stow \
+system-config-printer tmux tree-sitter-cli ttf-noto-nerd uwsm waybar wireplumber \
+wl-clipboard wofi xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
 ```
 
 5. Configure PAM for GNOME Keyring (for TTY login)
