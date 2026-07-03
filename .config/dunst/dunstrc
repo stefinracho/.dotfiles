@@ -1,0 +1,20 @@
+[global]
+    corner_radius = 8
+    enable_recursive_icon_lookup = true
+    font = "Sans Serif"
+    frame_width = 1
+    highlight = "#FFFFFF"
+    icon_theme = Papirus-Dark
+    progress_bar_corner_radius = 2
+    max_icon_size = 16
+    min_icon_size = 16
+
+[urgency_low]
+    background = "#202020F7"
+    foreground = "#FFFFFF"
+    frame_color = "#7f7f7f80"
+
+[urgency_normal]
+    background = "#202020F2"
+    foreground = "#FFFFFF"
+    frame_color = "#7f7f7f80"

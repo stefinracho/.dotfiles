@@ -1,25 +1,26 @@
 * {
-    border-radius: 10px;
-    color: #FFFFFF;
+  border-radius: 10px;
+  color: #ffffff;
+  font-weight: normal;
 }
 
 window#waybar {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .modules-left,
 .modules-center,
 .modules-right {
-    margin: 5px 20px;
+  margin: 5px 20px;
 }
 
 #workspaces button.active {
-    background-color: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(127, 127, 127, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(127, 127, 127, 0.5);
 }
 
 #workspaces button:hover {
-    border-color: #FFFFFF;
+  border-color: #ffffff;
 }
 
 #battery,
@@ -27,18 +28,18 @@ window#waybar {
 #tray,
 #window,
 #wireplumber {
-    background-color: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(127, 127, 127, 0.5);
-    padding: 0px 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(127, 127, 127, 0.5);
+  padding: 0px 10px;
 }
 
 #clock,
 #tray,
 #wireplumber {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 window#waybar.empty #window {
-    background-color: transparent;
-    border: none;
+  background-color: transparent;
+  border: none;
 }
