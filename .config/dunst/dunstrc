@@ -1,5 +1,6 @@
 [global]
     corner_radius = 8
+    dmenu = /usr/bin/hyprlauncher --dmenu
     enable_recursive_icon_lookup = true
     font = "Sans Serif"
     frame_width = 1
@@ -8,6 +9,7 @@
     progress_bar_corner_radius = 2
     max_icon_size = 16
     min_icon_size = 16
+    timeout = 0
 
 [urgency_low]
     background = "#202020F7"
@@ -18,3 +20,8 @@
     background = "#202020F2"
     foreground = "#FFFFFF"
     frame_color = "#7f7f7f80"
+
+[vol_and_bright]
+    appname = "vol_and_bright"
+    history_ignore = true
+    timeout = 3
