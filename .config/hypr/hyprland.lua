@@ -1,5 +1,10 @@
+--------------------------------------------------------------------------------
+-- Variables
+--------------------------------------------------------------------------------
+hl.env("HYPRCURSOR_THEME", "rose-pine-hyprcursor")
 local launch_app = "uwsm app -- "
 local browser = "firefox"
+local color_picker = "hyprpicker"
 local mail = "electron-mail"
 local menu = "hyprlauncher"
 local notif = "dunst"
@@ -79,8 +84,38 @@ hl.config({
 --------------------------------------------------------------------------------
 -- General
 local main_mod = "SUPER"
-hl.bind(main_mod .. " + B", hl.dsp.exec_cmd(launch_app .. browser), { description = "Launch " .. browser })
+hl.bind(
+	main_mod .. " + SPACE",
+	hl.dsp.exec_cmd(launch_app .. menu),
+	{ description = "Launch " .. menu .. " (app launcher)" }
+)
+hl.bind(
+	main_mod .. " + ESCAPE",
+	hl.dsp.exec_cmd('echo -e "Suspend\nReboot\nShutdown" | ' .. menu .. [[ --dmenu | 
+    { read -r selection; case "$selection" in
+    Suspend) systemctl suspend;;
+    Reboot) hyprshutdown -t 'Rebooting...' --post-cmd 'reboot';;
+    Shutdown) hyprshutdown -t 'Shutting down...' --post-cmd 'shutdown -h now';; 
+    esac }]]),
+	{ description = "Launch power options" }
+)
+hl.bind(main_mod .. " + W", hl.dsp.window.close(), { description = "Close window" })
+hl.bind(
+	main_mod .. " + B",
+	hl.dsp.exec_cmd(launch_app .. browser),
+	{ description = "Launch " .. browser .. " (browser)" }
+)
+hl.bind(
+	main_mod .. " + T",
+	hl.dsp.exec_cmd(launch_app .. terminal),
+	{ description = "Launch " .. terminal .. " (terminal)" }
+)
 hl.bind("PRINT", hl.dsp.exec_cmd('grim -g "$(slurp)" - | ksnip -'), { description = "Screenshot" })
+hl.bind(
+	main_mod .. " + C",
+	hl.dsp.exec_cmd(launch_app .. color_picker .. " -an"),
+	{ description = "Launch " .. color_picker .. " (color picker)" }
+)
 hl.bind(
 	main_mod .. " + CTRL + R",
 	hl.dsp.exec_cmd(
@@ -88,17 +123,20 @@ hl.bind(
 	),
 	{ description = "Reload waybar, " .. notif .. ", " .. menu }
 )
-hl.bind(main_mod .. " + SPACE", hl.dsp.exec_cmd(launch_app .. menu), { description = "Launch " .. menu })
-hl.bind(main_mod .. " + T", hl.dsp.exec_cmd(launch_app .. terminal), { description = "Launch " .. terminal })
-hl.bind(main_mod .. " + W", hl.dsp.window.close(), { description = "Close window" })
 
 -- Notifications
 hl.bind(main_mod .. " + N", hl.dsp.exec_cmd("dunstctl close"), { description = "Close topmost notification" })
 hl.bind(
 	main_mod .. " + SHIFT + N",
-	hl.dsp.exec_cmd(
-		[[dunstctl history | jq -r '.data[0][] | "\(.id.data)| \(.summary.data) \(.body.data)"' | column -t -s '|' | hyprlauncher --dmenu | awk '{system("dunstctl history-pop " $1)}']]
-	),
+	hl.dsp.exec_cmd([[
+        NOTIF=$(dunstctl history | \
+            jq -r '.data[0][] | "\(.id.data)| \(.summary.data) \(.body.data)"' | \
+            column -t -s '|' | \
+             hyprlauncher --dmenu)
+        [ -z "$NOTIF" ] && exit 0
+        NOTIF_ID=$(echo "$NOTIF" | awk '{print $1}')
+        dunstctl history-pop "$NOTIF_ID"
+    ]]),
 	{ description = "Launch notification history" }
 )
 hl.bind(
@@ -236,8 +274,13 @@ hl.bind(
 hl.bind(main_mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Resize window (Mouse)" })
 
 -- Volume
-local vol_cmd_template =
-	[[ && wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{if ($3) system("dunstify \"Volume Muted\" --app-name=vol_and_bright -u low --icon audio-volume-muted-symbolic --stack-tag VOL -h int:value:" int($2*100)); else system("dunstify Volume --app-name=vol_and_bright -u low --icon %s --stack-tag VOL -h int:value:" int($2*100))}']]
+local vol_cmd_template = [[
+    VOL=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2*100)}');
+    if wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q '\[MUTED\]'; then
+        dunstify "Volume Muted" --app-name vol_and_bright -u low --icon audio-volume-muted-symbolic --stack-tag vol_tag -h int:value:"$VOL";
+    else
+        dunstify "Volume" --app-name vol_and_bright -u low --icon %s --stack-tag vol_tag -h int:value:"$VOL";
+    fi ]]
 local vol_binds = {
 	{
 		action = "Raise",
@@ -255,18 +298,23 @@ local vol_binds = {
 		action = "Mute",
 		bind = "XF86AudioMute",
 		cmd = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-		icon = "audio-volume-high-symbolic ",
+		icon = "audio-volume-high-symbolic",
 	},
 }
 for _, vol_bind in ipairs(vol_binds) do
 	local formatted_cmd = string.format(vol_cmd_template, vol_bind.icon)
-	local final_cmd = vol_bind.cmd .. formatted_cmd
+	local final_cmd = vol_bind.cmd .. "; " .. formatted_cmd
 	hl.bind(vol_bind.bind, hl.dsp.exec_cmd(final_cmd), { repeating = true, description = vol_bind.action .. " volume" })
 end
 
 -- Brightness
-local brightness_cmd_template =
-	" && dunstify Brightness --app-name=vol_and_bright -u low --icon xfpm-brightness-lcd --stack-tag BRIGHTNESS -h int:value:$(( $(brightnessctl get) * 100 / $(brightnessctl max) ))"
+local brightness_cmd_template = [[ &&
+    dunstify Brightness \
+    --app-name vol_and_bright \
+    -u low \
+    --icon xfpm-brightness-lcd \
+    --stack-tag brightness_tag \
+    -h int:value:$(( $(brightnessctl get) * 100 / $(brightnessctl max) ))]]
 local brightness_binds = {
 	{
 		action = "Increase",

@@ -14,7 +14,7 @@ start-hyprland
 3. Install AUR packages
 ```sh
 paru -S --needed electronmail-bin finamp-bin jellyfin-desktop-git pwvucontrol \
-python-grip-git qt6ct-kde vesktop-bin waybar-git
+python-grip-git qt6ct-kde rose-pine-hyprcursor vesktop-bin waybar-git
 ```
 
 4. Install everything else
@@ -22,13 +22,13 @@ python-grip-git qt6ct-kde vesktop-bin waybar-git
 sudo pacman -S --needed adobe-source-sans-fonts adobe-source-serif-fonts anki aws-cli-v2 \
 blueman bluez-utils breeze brightnessctl cups dmenu docker docker-buildx docker-compose \
 dunst fastfetch fd ghostty gimp gnome-keyring grim hplip hunspell hunspell-en_us hypridle \
-hyprlauncher hyprlock hyprpaper hyprpolkitagent hyprtoolkit jq kdeconnect ksnip \
+hyprlauncher hyprlock hyprpaper hyprpolkitagent hyprshutdown hyprtoolkit jq kdeconnect ksnip \
 libreoffice-fresh luarocks mpv neovim networkmanager network-manager-applet \
 nextcloud-client noto-fonts noto-fonts-cjk noto-fonts-emoji npm nwg-look pandoc-cli \
 papirus-icon-theme pipewire pipewire-pulse python-weasyprint qalculate-qt qbittorrent \
-qqc2-breeze-style qt5ct qt5-wayland qt6-wayland ripgrep rsync slurp stow system-config-printer \
-tmux tree-sitter-cli ttf-noto-nerd uwsm wget wireplumber wl-clipboard xdg-desktop-portal-gtk \
-xdg-desktop-portal-hyprland
+qqc2-breeze-style qt5ct qt5-wayland qt6-wayland ripgrep rsync slurp stow \
+system-config-printer tmux tree-sitter-cli ttf-noto-nerd uwsm wget wireplumber wl-clipboard \
+xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
 ```
 
 5. Configure PAM for GNOME Keyring (for TTY login)
