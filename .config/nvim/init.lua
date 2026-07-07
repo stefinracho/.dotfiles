@@ -18,7 +18,8 @@ vim.pack.add({
 	"https://github.com/saghen/blink.cmp", -- Auto-completion
 	"https://github.com/saghen/blink.lib",
 	"https://github.com/rafamadriz/friendly-snippets",
-	"https://github.com/stevearc/conform.nvim", -- Formatters, LSPs, Linters
+	"https://github.com/stevearc/conform.nvim", -- Formatters, Linters, LSPs
+	"https://github.com/mfussenegger/nvim-lint",
 	"https://github.com/mason-org/mason.nvim",
 	"https://github.com/mason-org/mason-lspconfig.nvim",
 	"https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -29,6 +30,7 @@ vim.pack.add({
 	"https://github.com/nvim-tree/nvim-web-devicons",
 	"https://github.com/nvim-telescope/telescope-fzf-native.nvim",
 	"https://github.com/m4xshen/hardtime.nvim",
+	"https://github.com/mrcjkb/rustaceanvim", -- Rust
 	"https://github.com/lewis6991/gitsigns.nvim", -- Git
 	"https://github.com/kylechui/nvim-surround", -- Text editing
 	"https://github.com/meanderingprogrammer/render-markdown.nvim", -- Markdown
@@ -43,9 +45,9 @@ local cmp = require("blink.cmp")
 cmp.build():pwait()
 cmp.setup({ signature = { enabled = true } })
 
--- Formatters, LSPs, Linters
+-- Formatters, Linters, LSPs
 local langs = {
-	ansible = { lsp = "ansiblels", linter = "ansible-lint" },
+	ansible = { lsp = "ansiblels", linters = { "ansible-lint" } },
 	c = { lsp = "clangd", formatters = { "clang-format" } },
 	css = { lsp = "cssls", formatters = { "prettierd" } },
 	hcl = { lsp = "terraformls", formatters = { "terraform_fmt" } },
@@ -55,9 +57,9 @@ local langs = {
 	javascript = { lsp = "prettierd", formatters = { "prettierd" } },
 	jinja = { lsp = "jinja_lsp", formatters = { "djlint" } },
 	json = { lsp = "jsonls", formatters = { "prettier" } },
-	lua = { lsp = "lua_ls", formatters = { "stylua" } },
-	python = { lsp = "pyright", formatters = { "isort", "black" } },
-	sh = { lsp = "bashls", formatters = { "shellharden", "shfmt" }, linter = "shellcheck" },
+	lua = { lsp = "lua_ls", formatters = { "stylua" }, linters = { "selene" } },
+	python = { lsp = "ty", formatters = { "ruff" } },
+	sh = { lsp = "bashls", formatters = { "shellharden", "shfmt" }, linters = { "shellcheck" } },
 	sql = { lsp = "sqlls", formatters = { "sql_formatter" } },
 	tailwindcss = { lsp = "tailwindcss" },
 	terraform = { lsp = "terraformls", formatters = { "terraform_fmt" } },
@@ -70,9 +72,8 @@ local mason_aliases = {
 	terraform_fmt = "terraform",
 	sql_formatter = "sql-formatter",
 }
-local formatters_by_ft, ensure_installed = {}, {}
+local ensure_installed, formatters_by_ft, linters_by_ft = {}, {}, {}
 for lang, lang_data in pairs(langs) do -- Populate tables
-	formatters_by_ft[lang] = lang_data.formatters
 	table.insert(ensure_installed, lang_data.lsp)
 	if lang_data.formatters then
 		for _, formatter in ipairs(lang_data.formatters) do
@@ -80,16 +81,26 @@ for lang, lang_data in pairs(langs) do -- Populate tables
 			table.insert(ensure_installed, mason_name)
 		end
 	end
-	if lang_data.linter then
-		table.insert(ensure_installed, lang_data.linter)
+	if lang_data.linters then
+		for _, linter in ipairs(lang_data.linters) do
+			table.insert(ensure_installed, linter)
+		end
 	end
+	formatters_by_ft[lang] = lang_data.formatters
+	linters_by_ft[lang] = lang_data.linters
 end
-require("conform").setup({
+require("conform").setup({ -- Formatters
 	formatters_by_ft = formatters_by_ft,
 	format_on_save = {},
 })
+require("lint").linters_by_ft = linters_by_ft -- Linters
+vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
+	callback = function()
+		require("lint").try_lint()
+	end,
+})
 require("mason").setup()
-require("mason-lspconfig").setup()
+require("mason-lspconfig").setup() -- LSPs
 require("mason-tool-installer").setup({
 	ensure_installed = ensure_installed,
 	auto_update = true,

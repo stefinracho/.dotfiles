@@ -32,3 +32,4 @@ unzip-to-folder() {
     fi
   done
 }
+. "$HOME/.cargo/env"
