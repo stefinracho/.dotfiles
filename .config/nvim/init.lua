@@ -112,13 +112,23 @@ require("tree-sitter-manager").setup({
 })
 
 -- Navigation
-require("telescope").setup({ pickers = { find_files = { hidden = true } }, extensions = { fzf = {} } })
+require("telescope").setup({ extensions = { fzf = {} } })
 require("telescope").load_extension("fzf")
 local builtin = require("telescope.builtin")
-vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope find files" })
-vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope live grep" })
-vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telescope buffers" })
-vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope help tags" })
+vim.keymap.set("n", "<leader>/", builtin.current_buffer_fuzzy_find, { desc = "Telescope: Current buffer fuzzy find" })
+vim.keymap.set("n", "<leader>?", builtin.keymaps, { desc = "Telescope: Normal mode keymappings" })
+vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Telescope: Find files" })
+vim.keymap.set("n", "<leader>fF", function()
+	builtin.find_files({ hidden = true, no_ignore = true })
+end, { desc = "Telescope: Find files (hidden/ignored)" })
+vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Telescope: Live grep current working directory" })
+vim.keymap.set("n", "<leader>fG", function()
+	builtin.live_grep({ hidden = true, no_ignore = true })
+end, { desc = "Telescope: Live grep current working directory (hidden/ignored)" })
+vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Telescope: Buffers" })
+vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Telescope: Help tags" })
+vim.keymap.set("n", "<leader>fm", builtin.man_pages, { desc = "Telescope: Man pages" })
+vim.keymap.set("n", "<leader>gs", builtin.git_status, { desc = "Telescope: Git status" })
 
 require("hardtime").setup()
 
@@ -138,25 +148,29 @@ require("gitsigns").setup({
 			else
 				gitsigns.nav_hunk("next")
 			end
-		end)
+		end, { desc = "Gitsigns: Next hunk" })
 		map("n", "[h", function()
 			if vim.wo.diff then
 				vim.cmd.normal({ "[h", bang = true })
 			else
 				gitsigns.nav_hunk("prev")
 			end
-		end)
+		end, { desc = "Gitsigns: Previous hunk" })
 		-- Actions
-		map("n", "<leader>hp", gitsigns.preview_hunk)
-		map("n", "<leader>hi", gitsigns.preview_hunk_inline)
+		map("n", "<leader>hp", gitsigns.preview_hunk, { desc = "Gitsigns: Preview hunk" })
+		map("n", "<leader>hi", gitsigns.preview_hunk_inline, { desc = "Gitsigns: Preview hunk inline" })
 		map("n", "<leader>hb", function()
 			gitsigns.blame_line({ full = true })
-		end)
-		map("n", "<leader>hd", gitsigns.diffthis)
+		end, { desc = "Gitsigns: Blame line" })
+		map("n", "<leader>hd", gitsigns.diffthis, { desc = "Gitsigns: Split window comparison" })
 		map("n", "<leader>hD", function()
 			gitsigns.diffthis("~")
-		end)
+		end, { desc = "Gitsigns: Split window comparison~" })
+		map("n", "<leader>hs", gitsigns.stage_hunk, { desc = "Gitsigns: Stage hunk" })
+		map("v", "<leader>hs", function()
+			gitsigns.stage_hunk({ vim.fn.line("'<"), vim.fn.line("'>") })
+		end, { desc = "Gitsigns: Stage selected lines" })
 		-- Toggles
-		map("n", "<leader>tw", gitsigns.toggle_word_diff)
+		map("n", "<leader>tw", gitsigns.toggle_word_diff, { desc = "Gitsigns: Toggle word diff" })
 	end,
 })

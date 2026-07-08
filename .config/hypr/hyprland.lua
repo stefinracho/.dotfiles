@@ -379,7 +379,7 @@ hl.bind(
 
 -- Keybind Help
 hl.bind(
-	main_mod .. " + code:61",
+	main_mod .. " + SHIFT + code:61",
 	hl.dsp.exec_cmd([[
         hyprctl -j binds | 
         jq -r '.[] | 
