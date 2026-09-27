@@ -1,6 +1,7 @@
 theme = Kanagawa Dragon
 
-font-family = Noto Sans Mono
+# font-family = NotoSansM Nerd Font
+font-family = SauceCodePro Nerd Font
 
 font-feature = -calt
 font-feature = -liga

@@ -25,3 +25,7 @@
     appname = "vol_and_bright"
     history_ignore = true
     timeout = 3
+
+[time_track]
+    appname = "time_track"
+    timeout = 10

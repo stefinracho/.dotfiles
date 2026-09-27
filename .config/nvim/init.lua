@@ -1,14 +1,23 @@
 --------------------------------------------------------------------------------
--- Options
+-- Vim Stuff
 --------------------------------------------------------------------------------
-vim.g.mapleader = " " -- Globals
-vim.opt.shiftwidth = 4 -- Conformity
+vim.g.mapleader = " "
+
+vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.expandtab = true
-vim.opt.relativenumber = true -- Visuals
+
+vim.opt.relativenumber = true
 vim.opt.cursorline = true
 vim.opt.colorcolumn = "80"
+
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+
+vim.diagnostic.config({
+	virtual_text = true,
+})
 
 --------------------------------------------------------------------------------
 -- Plugins
@@ -24,6 +33,7 @@ vim.pack.add({
 	"https://github.com/mason-org/mason-lspconfig.nvim",
 	"https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim",
 	"https://github.com/neovim/nvim-lspconfig",
+	"https://github.com/folke/lazydev.nvim", -- LuaLS for Neovim
 	"https://github.com/romus204/tree-sitter-manager.nvim", -- Tree-sitter
 	"https://github.com/nvim-telescope/telescope.nvim", -- Navigation
 	"https://github.com/nvim-lua/plenary.nvim",
@@ -59,6 +69,7 @@ local langs = {
 	json = { lsp = "jsonls", formatters = { "prettier" } },
 	lua = { lsp = "lua_ls", formatters = { "stylua" }, linters = { "selene" } },
 	python = { lsp = "ty", formatters = { "ruff" } },
+	qml = { lsp = "qmlls" },
 	sh = { lsp = "bashls", formatters = { "shellharden", "shfmt" }, linters = { "shellcheck" } },
 	sql = { lsp = "sqlls", formatters = { "sql_formatter" } },
 	tailwindcss = { lsp = "tailwindcss" },
@@ -92,6 +103,9 @@ end
 require("conform").setup({ -- Formatters
 	formatters_by_ft = formatters_by_ft,
 	format_on_save = {},
+	default_format_opts = {
+		lsp_format = "fallback",
+	},
 })
 require("lint").linters_by_ft = linters_by_ft -- Linters
 vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
@@ -105,6 +119,9 @@ require("mason-tool-installer").setup({
 	ensure_installed = ensure_installed,
 	auto_update = true,
 })
+
+-- LuaLS for Neovim
+require("lazydev").setup()
 
 -- Tree-sitter
 require("tree-sitter-manager").setup({
@@ -171,6 +188,15 @@ require("gitsigns").setup({
 			gitsigns.stage_hunk({ vim.fn.line("'<"), vim.fn.line("'>") })
 		end, { desc = "Gitsigns: Stage selected lines" })
 		-- Toggles
-		map("n", "<leader>tw", gitsigns.toggle_word_diff, { desc = "Gitsigns: Toggle word diff" })
+		map("n", "<leader>wd", gitsigns.toggle_word_diff, { desc = "Gitsigns: Toggle word diff" })
 	end,
 })
+
+-- Rust
+vim.g.rustaceanvim = {
+	tools = {
+		float_win_config = {
+			auto_focus = true,
+		},
+	},
+}

@@ -13,8 +13,8 @@ start-hyprland
 
 3. Install AUR packages
 ```sh
-paru -S --needed electronmail-bin finamp-bin jellyfin-desktop-git pwvucontrol \
-python-grip-git qt6ct-kde rose-pine-hyprcursor vesktop-bin waybar-git
+paru -S --needed electronmail-bin finamp-bin jellium-desktop-bin pwvucontrol \
+python-grip-git qt6ct-kde rose-pine-hyprcursor vesktop-bin
 ```
 
 4. Install everything else
@@ -22,12 +22,13 @@ python-grip-git qt6ct-kde rose-pine-hyprcursor vesktop-bin waybar-git
 sudo pacman -S --needed adobe-source-sans-fonts adobe-source-serif-fonts anki aws-cli-v2 \
 blueman bluez-utils breeze brightnessctl cups dmenu docker docker-buildx docker-compose \
 dunst fastfetch fd ghostty gimp gnome-keyring grim hplip hunspell hunspell-en_us hypridle \
-hyprlauncher hyprlock hyprpaper hyprpolkitagent hyprshutdown hyprtoolkit jq kdeconnect ksnip \
-libreoffice-fresh luarocks mpv neovim networkmanager network-manager-applet \
-nextcloud-client noto-fonts noto-fonts-cjk noto-fonts-emoji npm nwg-look pandoc-cli \
-papirus-icon-theme pipewire pipewire-pulse python-weasyprint qalculate-qt qbittorrent \
-qqc2-breeze-style qt5ct qt5-wayland qt6-wayland ripgrep rsync slurp stow \
-system-config-printer tmux tree-sitter-cli ttf-noto-nerd uwsm wget wireplumber wl-clipboard \
+hyprlauncher hyprlock hyprpaper hyprpolkitagent hyprshutdown hyprtoolkit jq kdeconnect \
+ksnip libreoffice-fresh luarocks mpv neovim networkmanager network-manager-applet \
+nextcloud-client noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra npm nwg-look \
+pandoc-cli papirus-icon-theme pipewire pipewire-pulse python-weasyprint qalculate-qt \
+qbittorrent qqc2-breeze-style qt5ct qt5-wayland qt6-wayland quickshell ripgrep rsync slurp \
+stow system-config-printer tmux tree-sitter-cli ttf-noto-nerd ttf-sourcecodepro-nerd \
+unixodbc uwsm vulkan-radeon vulkan-tools wget wireplumber wl-clipboard \
 xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
 ```
 
@@ -42,8 +43,7 @@ sudo sed -i \
 
 6. Enable user services
 ```sh
-systemctl --user enable --now hypridle.service hyprpaper.service hyprpolkitagent.service \
-waybar.service
+systemctl --user enable --now hypridle.service hyprpaper.service hyprpolkitagent.service
 ```
 
 7. Enable system services
