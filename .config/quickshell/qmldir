@@ -1,5 +1,6 @@
 singleton Theme 1.0 Theme.qml
 Bar 1.0 Bar.qml
+Battery 1.0 Battery.qml
 singleton BarState 1.0 BarState.qml
 DateTime 1.0 DateTime.qml
 SystemTray 1.0 SystemTray.qml

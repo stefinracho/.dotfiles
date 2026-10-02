@@ -29,6 +29,7 @@ Item {
         spacing: Theme.space(2)
 
         TimeTracker {}
+        Battery {}
         SystemTray {}
         DateTime {}
     }

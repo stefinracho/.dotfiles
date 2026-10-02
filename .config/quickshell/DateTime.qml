@@ -16,9 +16,9 @@ WrapperRectangle {
     }
 
     Text {
+        text: Qt.formatDateTime(clock.date, "yyyy-MM-dd hh:mm")
         color: Theme.foreground
         font.pixelSize: Theme.fontSize
         padding: Theme.space(2)
-        text: Qt.formatDateTime(clock.date, "yyyy-MM-dd hh:mm")
     }
 }
