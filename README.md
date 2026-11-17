@@ -1,8 +1,8 @@
 # .dotfiles
 
-1. Install a browser, [Hyprland](https://wiki.hyprland.org/Getting-Started/Installation/), [Kitty](https://archlinux.org/packages/extra/x86_64/kitty/), and [paru](https://github.com/Morganamilo/paru)
+1. Install [Hyprland](https://wiki.hyprland.org/Getting-Started/Installation/) and [Kitty](https://archlinux.org/packages/extra/x86_64/kitty/), and [paru](https://github.com/Morganamilo/paru)
 ```sh
-sudo pacman -S --needed base-devel firefox git hyprland kitty && cd && git clone \
+sudo pacman -S --needed base-devel git hyprland kitty && cd && git clone \
 https://aur.archlinux.org/paru.git && cd paru && makepkg -si
 ```
 
@@ -13,23 +13,24 @@ start-hyprland
 
 3. Install AUR packages
 ```sh
-paru -S --needed electronmail-bin finamp-bin jellium-desktop-bin pwvucontrol \
-python-grip-git qt6ct-kde rose-pine-hyprcursor vesktop-bin
+paru -S --needed electronmail-bin finamp-bin goldendict-ng jellium-desktop-git \
+mullvad-browser-bin pwvucontrol python-grip-git qt6ct-kde rose-pine-hyprcursor
 ```
 
 4. Install everything else
 ```sh
 sudo pacman -S --needed adobe-source-sans-fonts adobe-source-serif-fonts anki aws-cli-v2 \
-blueman bluez-utils breeze brightnessctl cups dmenu docker docker-buildx docker-compose \
-dunst fastfetch fd ghostty gimp gnome-keyring grim hplip hunspell hunspell-en_us hypridle \
-hyprlauncher hyprlock hyprpaper hyprpolkitagent hyprshutdown hyprtoolkit jq kdeconnect \
-ksnip libreoffice-fresh luarocks mpv neovim networkmanager network-manager-applet \
-nextcloud-client noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra npm nwg-look \
-pandoc-cli papirus-icon-theme pipewire pipewire-pulse python-weasyprint qalculate-qt \
-qbittorrent qqc2-breeze-style qt5ct qt5-wayland qt6-wayland quickshell ripgrep rsync slurp \
-stow system-config-printer tmux tree-sitter-cli ttf-noto-nerd ttf-sourcecodepro-nerd \
-unixodbc uwsm vulkan-radeon vulkan-tools wget wireplumber wl-clipboard \
-xdg-desktop-portal-gtk xdg-desktop-portal-hyprland
+bitwarden blueman bluez-utils breeze brightnessctl cups dmenu docker docker-buildx \
+docker-compose dunst fastfetch fd ghostty gimp gnome-keyring grim hplip hunspell \
+hunspell-en_us hypridle hyprlauncher hyprlock hyprpaper hyprpolkitagent \
+hyprshutdown hyprtoolkit jq kdeconnect ksnip libreoffice-fresh luarocks mpv neovim \
+networkmanager network-manager-applet nextcloud-client noto-fonts noto-fonts-cjk \
+noto-fonts-emoji noto-fonts-extra npm nwg-look pandoc-cli papirus-icon-theme pipewire \
+pipewire-pulse proton-vpn-gtk-app python-weasyprint qalculate-qt qbittorrent \
+qqc2-breeze-style qt5ct qt5-wayland qt6-wayland quickshell ripgrep rsync slurp stow \
+system-config-printer tmux tree-sitter-cli ttf-noto-nerd ttf-sourcecodepro-nerd unixodbc \
+uwsm vulkan-radeon vulkan-tools wget wireplumber wl-clipboard xdg-desktop-portal-gtk \
+xdg-desktop-portal-hyprland
 ```
 
 5. Configure PAM for GNOME Keyring (for TTY login)

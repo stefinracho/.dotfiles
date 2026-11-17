@@ -2,7 +2,7 @@
     corner_radius = 8
     dmenu = /usr/bin/hyprlauncher --dmenu
     enable_recursive_icon_lookup = true
-    font = "Sans Serif"
+    font = Sans Serif
     frame_width = 1
     highlight = "#FFFFFF"
     icon_theme = Papirus-Dark
@@ -22,10 +22,14 @@
     frame_color = "#7f7f7f80"
 
 [vol_and_bright]
-    appname = "vol_and_bright"
+    appname = vol_and_bright
     history_ignore = true
     timeout = 3
 
 [time_track]
-    appname = "time_track"
+    appname = time_track
     timeout = 10
+
+[nm_applet]
+    appname = NetworkManager Applet
+    timeout = 5

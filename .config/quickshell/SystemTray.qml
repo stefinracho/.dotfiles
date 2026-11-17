@@ -1,10 +1,9 @@
+import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 import QtQuick
 
 WrapperRectangle {
-    id: tray
-
     color: Theme.background
     border.color: Theme.border
     border.width: 1
@@ -17,11 +16,32 @@ WrapperRectangle {
         Repeater {
             model: SystemTray.items
 
-            delegate: IconImage {
+            delegate: MouseArea {
+                id: trayItem
+
                 required property SystemTrayItem modelData
-                source: modelData.icon
+
                 implicitWidth: Theme.iconSize
                 implicitHeight: Theme.iconSize
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                onClicked: event => {
+                    if (event.button === Qt.LeftButton)
+                        trayItem.modelData.activate();
+                    else if (event.button === Qt.RightButton)
+                        menuAnchor.open();
+                }
+
+                IconImage {
+                    anchors.fill: parent
+                    source: parent.modelData.icon
+                }
+
+                QsMenuAnchor {
+                    id: menuAnchor
+                    menu: trayItem.modelData.menu
+                    anchor.item: trayItem
+                }
             }
         }
     }

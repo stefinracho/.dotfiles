@@ -4,11 +4,14 @@
 hl.env("HYPRCURSOR_THEME", "rose-pine-hyprcursor")
 
 local LAUNCH_APP <const> = "uwsm app -- "
-local BROWSER <const> = "firefox"
+local BAR <const> = "quickshell"
+local BROWSER <const> = "mullvad-browser"
 local COLOR_PICKER <const> = "hyprpicker"
+local DICT <const> = "goldendict"
 local MAIL <const> = "electron-mail"
 local MENU <const> = "hyprlauncher"
 local NOTIF <const> = "dunst"
+local VPN <const> = "protonvpn-app"
 local TERM <const> = "ghostty"
 
 local OPAQUE_OPACITY <const> = 1.0
@@ -23,74 +26,82 @@ local ROUNDING <const> = 8
 
 local MAIN_MOD <const> = "SUPER"
 
-local reload_services = hl.dsp.exec_cmd(
-	"systemctl --user restart hyprpaper.service dunstctl reload && pkill "
-		.. MENU
-		.. " && "
-		.. LAUNCH_APP
-		.. MENU
-		.. " -d"
-)
+--------------------------------------------------------------------------------
+-- Helper Functions
+--------------------------------------------------------------------------------
+local function reload_services()
+	hl.dispatch(hl.dsp.exec_cmd("systemctl --user restart hyprpaper.service"))
+	hl.dispatch(hl.dsp.exec_cmd("dunstctl reload"))
+	hl.dispatch(hl.dsp.exec_cmd("killall " .. BAR .. " " .. MENU))
+	hl.dispatch(hl.dsp.exec_cmd(LAUNCH_APP .. BAR .. " -d"))
+	hl.dispatch(hl.dsp.exec_cmd(LAUNCH_APP .. MENU .. " -d"))
+	hl.notification.create({ text = "Reloaded services", timeout = 5000, icon = "info" })
+end
+
+local function dismiss_hl_notifs()
+	local notifs = hl.notification.get()
+	for _, notif in pairs(notifs) do
+		notif.dismiss(notif)
+	end
+end
+
+local function mon_status_notif()
+	dismiss_hl_notifs()
+	hl.timer(function() -- HACK
+		local monitors = hl.get_monitors({ all = true })
+		for _, monitor in ipairs(monitors) do
+			local status = monitor.enabled and "Enabled" or "Disabled"
+			hl.notification.create({
+				text = monitor.description
+					.. "\nScale: "
+					.. string.format("%.2f", monitor.scale)
+					.. "\nStatus: "
+					.. status,
+				timeout = 10000,
+				icon = "info",
+			})
+		end
+	end, { timeout = 1000, type = "oneshot" })
+end
 
 --------------------------------------------------------------------------------
 -- Monitors
 --------------------------------------------------------------------------------
-local mon_mode = "highres@highrr"
-local sec_mon_output = "HDMI-A-1"
-local sec_mon_position = "0x0"
-local sec_mon_scale = 3
-local sec_mon_disabled = false
-
+local output_mon_1 = "desc:AOC AG241QG4 0x000003A3"
+local output_mon_2 = "desc:LG Electronics LG TV SSCR2 0x01010101"
+local mode_mon = "highres@highrr"
 hl.monitor({
-	output = sec_mon_output,
-	mode = mon_mode,
-	position = sec_mon_position,
-	scale = sec_mon_scale,
+	output = output_mon_1,
+	mode = mode_mon,
 })
 hl.monitor({
-	output = "DP-2",
-	mode = mon_mode,
-	scale = 1,
+	output = output_mon_2,
+	mode = "3840x2160@60",
+	position = "0x0",
+	scale = 3,
+	bitdepth = 10,
 })
 hl.monitor({ -- Laptop
 	output = "eDP-1",
-	mode = mon_mode,
+	mode = mode_mon,
 	scale = 1.5,
 })
-
-hl.bind(MAIN_MOD .. " + M", function()
-	if sec_mon_disabled then
-		hl.monitor({
-			output = sec_mon_output,
-			mode = mon_mode,
-			position = sec_mon_position,
-			scale = sec_mon_scale,
-			disabled = not sec_mon_disabled,
-		})
-		sec_mon_disabled = not sec_mon_disabled
-	else
-		hl.monitor({
-			output = sec_mon_output,
-			disabled = not sec_mon_disabled,
-		})
-		sec_mon_disabled = not sec_mon_disabled
-	end
-
-	hl.dispatch(reload_services)
-end)
+hl.monitor({ -- Catchall
+	output = "",
+	mode = mode_mon,
+})
 
 --------------------------------------------------------------------------------
 -- Autostart
 --------------------------------------------------------------------------------
 hl.on("hyprland.start", function()
-	hl.exec_cmd(LAUNCH_APP .. BROWSER)
 	hl.exec_cmd(LAUNCH_APP .. NOTIF)
 	hl.exec_cmd(LAUNCH_APP .. "kdeconnect-indicator")
 	hl.exec_cmd(LAUNCH_APP .. MAIL)
 	hl.exec_cmd(LAUNCH_APP .. MENU .. " -d")
-	hl.exec_cmd(LAUNCH_APP .. "quickshell")
+	hl.exec_cmd(LAUNCH_APP .. VPN .. " --start-minimized")
+	hl.exec_cmd(LAUNCH_APP .. BAR .. " -d")
 	hl.exec_cmd(LAUNCH_APP .. "nm-applet")
-	hl.exec_cmd(LAUNCH_APP .. "vesktop")
 	hl.exec_cmd("systemctl --user import-environment QT_QPA_PLATFORMTHEME")
 end)
 
@@ -150,23 +161,37 @@ hl.bind(
 )
 hl.bind(MAIN_MOD .. " + Q", hl.dsp.window.close(), { description = "(Q)uit application" })
 hl.bind(MAIN_MOD .. " + B", hl.dsp.exec_cmd(LAUNCH_APP .. BROWSER), { description = "(B)rowser (" .. BROWSER .. ")" })
-hl.bind(MAIN_MOD .. " + G", hl.dsp.exec_cmd(LAUNCH_APP .. TERM), { description = "(G)hostty (terminal)" })
+hl.bind(MAIN_MOD .. " + T", hl.dsp.exec_cmd(LAUNCH_APP .. TERM), { description = "(T)erminal (" .. TERM .. ")" })
 hl.bind("PRINT", hl.dsp.exec_cmd('grim -g "$(slurp)" - | ksnip -'), { description = "Screenshot" })
 hl.bind(
 	MAIN_MOD .. " + C",
 	hl.dsp.exec_cmd(LAUNCH_APP .. COLOR_PICKER .. " -an"),
 	{ description = "(C)olor picker (" .. COLOR_PICKER .. ")" }
 )
+hl.bind(MAIN_MOD .. " + D", hl.dsp.exec_cmd(LAUNCH_APP .. DICT), { description = "(D)ictionary (" .. DICT .. ")" })
 
 hl.bind(
-	MAIN_MOD .. " + CTRL + R",
+	MAIN_MOD .. " + R",
 	reload_services,
 	{ description = "(R)eload " .. NOTIF .. ", " .. MENU .. ", and other services" }
 )
 
+local is_opaque = false
+hl.bind(MAIN_MOD .. " + O", function()
+	hl.config({
+		decoration = {
+			shadow = { enabled = is_opaque },
+			blur = { enabled = is_opaque },
+			active_opacity = is_opaque and ACTIVE_OPACITY or OPAQUE_OPACITY,
+			inactive_opacity = is_opaque and INACTIVE_OPACITY or OPAQUE_OPACITY,
+		},
+	})
+	is_opaque = not is_opaque
+end, { description = "(O)pacity, and draw as little power as possible" })
+
 -- Track Time
 hl.bind(
-	MAIN_MOD .. " + T",
+	MAIN_MOD .. " + SHIFT + T",
 	hl.dsp.exec_cmd([[
             tags_all=()
             tags_all_count=$(timew get dom.tags.count)
@@ -181,10 +206,10 @@ hl.bind(
             quickshell ipc call timetracker refresh
             msg="Started tracking $chosen_tag_all"
             dunstify Timewarrior "$msg" --app-name time_track -u low --stack-tag time_track_tag_start]]),
-	{ description = "Track Time: Start" }
+	{ description = "Track (T)ime: Start" }
 )
 hl.bind(
-	MAIN_MOD .. " + SHIFT + T",
+	MAIN_MOD .. " + SHIFT + CTRL + T",
 	hl.dsp.exec_cmd([[
             tags_active=()
             tags_active_count=$(timew get dom.active.tags.count)
@@ -201,20 +226,20 @@ hl.bind(
             today_total=$(timew summary "$chosen_tag_active" | tail -2 | head -1 | awk "{print $NF}" | xargs)
             msg="Stopped tracking ${chosen_tag_active}\n\nInterval: ${interval_duration}\nToday: ${today_total}"
             dunstify Timewarrior "$msg" --app-name time_track -u low --stack-tag time_track_tag_stop]]),
-	{ description = "Track Time: Stop" }
+	{ description = "Track (T)ime: Stop" }
 )
 hl.bind(
-	MAIN_MOD .. " + CTRL + T",
+	MAIN_MOD .. " + SHIFT + ALT + T",
 	hl.dsp.exec_cmd([[
             active_duration=$(timew get dom.active.duration | sed 's/.*T//')
             [ -z "$active_duration" ] && exit 0
             active_tags=$(timew get dom.active.tags)
             msg="${active_tags} duration: ${active_duration}"
             dunstify Timewarrior "$msg" --app-name time_track -u low --stack-tag time_track_tag_duration]]),
-	{ description = "Track Time: Active Duration" }
+	{ description = "Track (T)ime: Active Duration" }
 )
 hl.bind(
-	MAIN_MOD .. " + ALT + T",
+	MAIN_MOD .. " + SHIFT + CTRL + ALT + T",
 	hl.dsp.exec_cmd([=[
             tags_all=()
             tags_all_count=$(timew get dom.tags.count)
@@ -229,17 +254,17 @@ hl.bind(
                 msg+="${tag}: ${tag_total}\n"
             done
             dunstify Timewarrior "$msg" --app-name time_track -u low --stack-tag time_track_tag_summary]=]),
-	{ description = "Track Time: Summary" }
+	{ description = "Track (T)ime: Summary" }
 )
 
 -- Notifications
 hl.bind(
-	MAIN_MOD .. " + N",
+	MAIN_MOD .. " + SHIFT + N",
 	hl.dsp.exec_cmd("dunstctl close"),
-	{ description = "Notifications: Close topmost notification" }
+	{ description = "(N)otification: Close topmost notification" }
 )
 hl.bind(
-	MAIN_MOD .. " + SHIFT + N",
+	MAIN_MOD .. " + SHIFT + CTRL + N",
 	hl.dsp.exec_cmd([[
         NOTIF=$(dunstctl history | \
             jq -r '.data[0][] | "\(.id.data)| \(.summary.data) \(.body.data | gsub("\n"; " "))"' | \
@@ -249,12 +274,53 @@ hl.bind(
         NOTIF_ID=$(echo "$NOTIF" | awk '{print $1}')
         dunstctl history-pop "$NOTIF_ID"
     ]]),
-	{ description = "Notifications: Open history" }
+	{ description = "(N)otification: History" }
 )
-hl.bind(MAIN_MOD .. " + A", hl.dsp.exec_cmd("dunstctl context"), { description = "Notifications: Take (A)ction" })
+hl.bind(MAIN_MOD .. " + A", hl.dsp.exec_cmd("dunstctl context"), { description = "Notification: Take (A)ction" })
 
--- Layout Control
-hl.bind("SUPER + tab", function() -- Cycle layouts
+-- Monitors
+local disabled_mon_1 = false
+local disabled_mon_2 = false
+hl.bind(MAIN_MOD .. " + ALT + M", function()
+	if not disabled_mon_1 and not disabled_mon_2 then -- both -> output_mon_1
+		hl.monitor({
+			output = output_mon_2,
+			disabled = true,
+		})
+		disabled_mon_2 = true
+	elseif disabled_mon_2 then -- output_mon_1 -> output_mon_2
+		hl.monitor({
+			output = output_mon_2,
+			disabled = false,
+		})
+		hl.timer(function() -- HACK
+			local workspaces = hl.get_workspaces()
+			for _, workspace in ipairs(workspaces) do
+				hl.dispatch(hl.dsp.workspace.move({ workspace = workspace.id, monitor = output_mon_2 }))
+			end
+		end, { timeout = 1000, type = "oneshot" })
+		hl.monitor({
+			output = output_mon_1,
+			disabled = true,
+		})
+		disabled_mon_2 = false
+		disabled_mon_1 = true
+	elseif disabled_mon_1 then -- output_mon_2 -> both
+		hl.monitor({
+			output = output_mon_1,
+			disabled = false,
+		})
+		disabled_mon_1 = false
+	end
+
+	reload_services()
+	mon_status_notif()
+end, { locked = true, description = "Cycle (M)onitors" })
+
+hl.bind(MAIN_MOD .. " + SHIFT + ALT + M", mon_status_notif, { description = "(M)onitor status notification" })
+
+-- Layouts
+hl.bind(MAIN_MOD .. "+ ALT + L", function()
 	local layouts = { "scrolling", "dwindle", "master", "monocle" }
 	local workspace = hl.get_active_workspace()
 	if hl.get_active_special_workspace() then
@@ -280,45 +346,36 @@ hl.bind("SUPER + tab", function() -- Cycle layouts
 	else
 		hl.workspace_rule({ workspace = tostring(workspace.id), layout = next_layout })
 	end
-	hl.notification.create({ text = next_layout, timeout = 2000 })
-end, { description = "Cycle layouts" })
-hl.bind(MAIN_MOD .. " + SHIFT + M", function()
+	hl.notification.create({ text = next_layout, timeout = 5000, icon = "info" })
+end, { description = "Cycle (L)ayouts" })
+
+hl.bind(MAIN_MOD .. " + CTRL + M", function()
 	if hl.get_active_workspace().tiled_layout == "master" then
 		hl.dispatch(hl.dsp.layout("swapwithmaster"))
 	end
-end, { description = "Swap window with master (Master)" })
+end, { description = "Swap window with (M)aster (Master)" })
+
 hl.bind(MAIN_MOD .. " + CTRL + N", function()
 	if hl.get_active_workspace().tiled_layout == "monocle" then
 		hl.dispatch(hl.dsp.layout("cyclenext"))
 	end
-end, { description = "Cycle to next window (Monocle)" })
+end, { description = "(N)ext window (Monocle)" })
+
 hl.bind(MAIN_MOD .. " + CTRL + P", function()
 	if hl.get_active_workspace().tiled_layout == "monocle" then
 		hl.dispatch(hl.dsp.layout("cycleprev"))
 	end
-end, { description = "Cycle to previous window (Monocle)" })
+end, { description = "(P)revious window (Monocle)" })
 
--- Opacity Control, and draw as little power as possible
-local is_opaque = false
-hl.bind(MAIN_MOD .. " + O", function()
-	hl.config({
-		decoration = {
-			shadow = { enabled = is_opaque },
-			blur = { enabled = is_opaque },
-			active_opacity = is_opaque and ACTIVE_OPACITY or OPAQUE_OPACITY,
-			inactive_opacity = is_opaque and INACTIVE_OPACITY or OPAQUE_OPACITY,
-		},
-	})
-	is_opaque = not is_opaque
-end, { description = "Toggle transparency and draw as little power as possible" })
+-- Window Focus
+hl.bind(MAIN_MOD .. " + H", hl.dsp.focus({ direction = "left" }), { description = "Focus left" })
+hl.bind(MAIN_MOD .. " + J", hl.dsp.focus({ direction = "down" }), { description = "Focus down" })
+hl.bind(MAIN_MOD .. " + K", hl.dsp.focus({ direction = "up" }), { description = "Focus up" })
+hl.bind(MAIN_MOD .. " + L", hl.dsp.focus({ direction = "right" }), { description = "Focus right" })
+hl.bind(MAIN_MOD .. " + N", hl.dsp.window.cycle_next({}), { description = "Focus (N)ext" })
+hl.bind(MAIN_MOD .. " + P", hl.dsp.window.cycle_next({ next = false }), { description = "Focus (P)revious" })
 
--- Move Focus Inside Workspace
-hl.bind(MAIN_MOD .. " + H", hl.dsp.focus({ direction = "left" }), { description = "Move focus left" })
-hl.bind(MAIN_MOD .. " + J", hl.dsp.focus({ direction = "down" }), { description = "Move focus down" })
-hl.bind(MAIN_MOD .. " + K", hl.dsp.focus({ direction = "up" }), { description = "Move focus up" })
-hl.bind(MAIN_MOD .. " + L", hl.dsp.focus({ direction = "right" }), { description = "Move focus right" })
-
--- Move Window Inside Worspace
+-- Window Movement
 hl.bind(
 	MAIN_MOD .. " + CTRL + H",
 	hl.dsp.window.move({ direction = "left", relative = true }),
@@ -341,7 +398,7 @@ hl.bind(
 )
 hl.bind(MAIN_MOD .. " + mouse:272", hl.dsp.window.drag(), { mouse = true, description = "Move window (Mouse)" })
 
--- Move Focus/Window To Workspace
+-- Workspace Focus & Window Movement
 for i = 1, 10 do
 	local key = i % 10
 	hl.bind(
@@ -356,18 +413,18 @@ for i = 1, 10 do
 	)
 end
 
--- Resize Window
-hl.bind(MAIN_MOD .. " + F", hl.dsp.window.fullscreen({ mode = "maximized" }), { description = "Maximize window" })
+-- Window Size
+hl.bind(MAIN_MOD .. " + M", hl.dsp.window.fullscreen({ mode = "maximized" }), { description = "(M)aximize window" })
+hl.bind(MAIN_MOD .. " + F", hl.dsp.window.fullscreen(), { description = "(F)ullscreen window" })
 hl.bind(
-	MAIN_MOD .. " + CTRL + F",
+	MAIN_MOD .. " + ALT + F",
 	hl.dsp.window.fullscreen_state({
 		internal = 0,
 		client = 2,
 		action = "toggle",
 	}),
-	{ description = "Fullscreen client, not window" }
+	{ description = "(F)ullscreen client" }
 )
-hl.bind(MAIN_MOD .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }), { description = "Float window" })
 hl.bind(
 	MAIN_MOD .. " + SHIFT + H",
 	hl.dsp.window.resize({ x = -50, y = 0, relative = true }),
@@ -390,7 +447,13 @@ hl.bind(
 )
 hl.bind(MAIN_MOD .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Resize window (Mouse)" })
 
--- Window Gaps
+-- Window State
+hl.bind(MAIN_MOD .. " + SHIFT + F", hl.dsp.window.float(), { description = "(F)loat window" })
+hl.bind(MAIN_MOD .. " + SHIFT + P", function()
+	hl.dispatch(hl.dsp.window.float({ action = "on" }))
+	hl.dispatch(hl.dsp.window.pin())
+end, { description = "(P)in window (float first)" })
+
 local is_gapped = true
 hl.bind(MAIN_MOD .. " + ALT + G", function()
 	hl.config({
@@ -413,10 +476,10 @@ hl.bind(MAIN_MOD .. " + ALT + G", function()
 		},
 	})
 	is_gapped = not is_gapped
-end, { description = "Gap windows" })
+end, { description = "(G)ap windows" })
 
 -- Bar
-hl.bind(MAIN_MOD .. " + ALT + B", hl.dsp.exec_cmd("quickshell ipc call bar toggle"), { description = "Toggle Bar" })
+hl.bind(MAIN_MOD .. " + ALT + B", hl.dsp.exec_cmd("quickshell ipc call bar toggle"), { description = "(B)ar" })
 
 -- Border
 local border = true
@@ -427,7 +490,7 @@ hl.bind(MAIN_MOD .. " + CTRL + B", function()
 		},
 	})
 	border = not border
-end, { description = "Toggle border" })
+end, { description = "(B)order" })
 
 -- Volume
 local vol_cmd_template = [[
@@ -519,13 +582,46 @@ hl.bind(MAIN_MOD .. " + code:21", function()
 end, { repeating = true, description = "Zoom in (Keyboard)" })
 hl.bind(MAIN_MOD .. " + mouse_down", function()
 	zoom(-0.5)
-end, { description = "Zoom out (Scrool wheel)" })
+end, { description = "Zoom out (Scroll wheel)" })
 hl.bind(MAIN_MOD .. " + code:20", function()
 	zoom(-0.5)
 end, { repeating = true, description = "Zoom out (Keyboard)" })
 hl.gesture({ fingers = 2, mods = MAIN_MOD, direction = "pinch", action = "cursorZoom", zoom_level = 1, mode = "live" })
 
+-- Scale
+---@param offset number
+---@return nil
+local function scale(offset)
+	hl.monitor({
+		output = "desc:" .. hl.get_active_monitor().description,
+		scale = hl.get_active_monitor().scale + offset,
+	})
+
+	hl.timer(function() -- HACK
+		dismiss_hl_notifs()
+		hl.notification.create({
+			text = "Scale: " .. string.format("%.2f", hl.get_active_monitor().scale),
+			timeout = 5000,
+			icon = "info",
+		})
+	end, { timeout = 1000, type = "oneshot" })
+end
+hl.bind(MAIN_MOD .. " + CTRL + mouse_up", function()
+	scale(0.25)
+end, { description = "Scale monitor increase (Scroll wheel)" })
+hl.bind(MAIN_MOD .. " + CTRL + code:21", function()
+	scale(0.25)
+end, { description = "Scale monitor increase (Keyboard)" })
+hl.bind(MAIN_MOD .. " + CTRL + mouse_down", function()
+	scale(-0.25)
+end, { description = "Scale monitor decrease (Scroll wheel)" })
+hl.bind(MAIN_MOD .. " + CTRL + code:20", function()
+	scale(-0.25)
+end, { description = "Scale monitor decrease (Keyboard)" })
+
 -- OBS
+-- TODO: rewrite using global keybinds
+--       https://wiki.hypr.land/configuring/core/binds/globals/
 hl.bind("CTRL + SHIFT + R", hl.dsp.exec_cmd("obs-cmd recording toggle"), { description = "OBS toggle recording" })
 hl.bind(
 	"CTRL + SHIFT + P",
@@ -560,15 +656,23 @@ hl.window_rule({
 	float = true,
 })
 hl.window_rule({
-	match = { class = "vesktop" },
-	workspace = "2 silent",
-})
-hl.window_rule({
 	match = { class = MAIL },
 	workspace = "3 silent",
+})
+hl.window_rule({
+	match = { initial_class = ".*" .. DICT .. ".*" },
+	float = true,
 })
 hl.window_rule({
 	name = "suppress-maximize-events",
 	match = { class = ".*" },
 	suppress_event = "maximize",
 })
+
+--------------------------------------------------------------------------------
+-- Events
+--------------------------------------------------------------------------------
+hl.on("config.reloaded", function()
+	mon_status_notif()
+	hl.notification.create({ text = "Reloaded Hyprland configuration", timeout = 5000, icon = "info" })
+end)
