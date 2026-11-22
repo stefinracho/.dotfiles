@@ -67,28 +67,42 @@ end
 --------------------------------------------------------------------------------
 -- Monitors
 --------------------------------------------------------------------------------
-local output_mon_1 = "desc:AOC AG241QG4 0x000003A3"
-local output_mon_2 = "desc:LG Electronics LG TV SSCR2 0x01010101"
-local mode_mon = "highres@highrr"
+---@alias Mon { output: string, mode: string, scales: number[] }
+---@alias Mons { [string]: Mon }
+
+---@type Mons
+local mons = {
+	mon1 = {
+		output = "desc:AOC AG241QG4 0x000003A3",
+		mode = "highres@highrr",
+		scales = { 0.5, 0.800000011920929, 1.0, 1.25, 1.6000000238418579, 2.0, 2.5, 3.2000000476837158, 4.0 },
+	},
+	mon2 = {
+		output = "desc:LG Electronics LG TV SSCR2 0x01010101",
+		mode = "3840x2160@60",
+		scales = { 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 3.3333332538604736, 4.0, 5.0 },
+	},
+}
 hl.monitor({
-	output = output_mon_1,
-	mode = mode_mon,
+	output = mons.mon1.output,
+	mode = mons.mon1.mode,
+	scale = mons.mon1.scales[3], -- 1.0
 })
 hl.monitor({
-	output = output_mon_2,
-	mode = "3840x2160@60",
+	output = mons.mon2.output,
+	mode = mons.mon2.mode,
 	position = "0x0",
-	scale = 3,
+	scale = mons.mon2.scales[6], -- 3.0
 	bitdepth = 10,
 })
 hl.monitor({ -- Laptop
 	output = "eDP-1",
-	mode = mode_mon,
+	mode = "highres@highrr",
 	scale = 1.5,
 })
 hl.monitor({ -- Catchall
 	output = "",
-	mode = mode_mon,
+	mode = "highres@highrr",
 })
 
 --------------------------------------------------------------------------------
@@ -284,30 +298,30 @@ local disabled_mon_2 = false
 hl.bind(MAIN_MOD .. " + ALT + M", function()
 	if not disabled_mon_1 and not disabled_mon_2 then -- both -> output_mon_1
 		hl.monitor({
-			output = output_mon_2,
+			output = mons.mon2.output,
 			disabled = true,
 		})
 		disabled_mon_2 = true
 	elseif disabled_mon_2 then -- output_mon_1 -> output_mon_2
 		hl.monitor({
-			output = output_mon_2,
+			output = mons.mon2.output,
 			disabled = false,
 		})
 		hl.timer(function() -- HACK
 			local workspaces = hl.get_workspaces()
 			for _, workspace in ipairs(workspaces) do
-				hl.dispatch(hl.dsp.workspace.move({ workspace = workspace.id, monitor = output_mon_2 }))
+				hl.dispatch(hl.dsp.workspace.move({ workspace = workspace.id, monitor = mons.mon2.output }))
 			end
 		end, { timeout = 1000, type = "oneshot" })
 		hl.monitor({
-			output = output_mon_1,
+			output = mons.mon1.output,
 			disabled = true,
 		})
 		disabled_mon_2 = false
 		disabled_mon_1 = true
 	elseif disabled_mon_1 then -- output_mon_2 -> both
 		hl.monitor({
-			output = output_mon_1,
+			output = mons.mon1.output,
 			disabled = false,
 		})
 		disabled_mon_1 = false
@@ -589,16 +603,45 @@ end, { repeating = true, description = "Zoom out (Keyboard)" })
 hl.gesture({ fingers = 2, mods = MAIN_MOD, direction = "pinch", action = "cursorZoom", zoom_level = 1, mode = "live" })
 
 -- Scale
----@param offset number
+---@param sign string
 ---@return nil
-local function scale(offset)
-	hl.monitor({
-		output = "desc:" .. hl.get_active_monitor().description,
-		scale = hl.get_active_monitor().scale + offset,
-	})
+local function scale(sign)
+	local active_mon = hl.get_active_monitor()
+
+	if active_mon == nil then
+		return
+	end
+
+	---@param mon Mon
+	---@return nil
+	local function set_scale(mon)
+		local cur_scale = active_mon.scale
+		local scale_idx
+
+		for i, scale in ipairs(mon.scales) do
+			if sign == "+" and cur_scale < scale then
+				scale_idx = i
+				break
+			elseif sign == "-" and cur_scale > scale then
+				scale_idx = i
+			end
+		end
+
+		hl.monitor({
+			output = mon.output,
+			scale = mon.scales[scale_idx],
+		})
+	end
+
+	if mons.mon1.output == "desc:" .. active_mon.description then
+		set_scale(mons.mon1)
+	elseif mons.mon2.output == "desc:" .. active_mon.description then
+		set_scale(mons.mon2)
+	end
 
 	hl.timer(function() -- HACK
 		dismiss_hl_notifs()
+
 		hl.notification.create({
 			text = "Scale: " .. string.format("%.2f", hl.get_active_monitor().scale),
 			timeout = 5000,
@@ -607,16 +650,16 @@ local function scale(offset)
 	end, { timeout = 1000, type = "oneshot" })
 end
 hl.bind(MAIN_MOD .. " + CTRL + mouse_up", function()
-	scale(0.25)
+	scale("+")
 end, { description = "Scale monitor increase (Scroll wheel)" })
 hl.bind(MAIN_MOD .. " + CTRL + code:21", function()
-	scale(0.25)
+	scale("+")
 end, { description = "Scale monitor increase (Keyboard)" })
 hl.bind(MAIN_MOD .. " + CTRL + mouse_down", function()
-	scale(-0.25)
+	scale("-")
 end, { description = "Scale monitor decrease (Scroll wheel)" })
 hl.bind(MAIN_MOD .. " + CTRL + code:20", function()
-	scale(-0.25)
+	scale("-")
 end, { description = "Scale monitor decrease (Keyboard)" })
 
 -- OBS
